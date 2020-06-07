@@ -1,72 +1,72 @@
 # Graylog Installation on Kubernetes using Helm on Rancher with Ingress
 
 ## Steps followed here:
-0. Add Catalog
-1. Install Nginx Ingress
-2. Install Cert- Manager
-3. Install  mongodb-replicaset
-4. Install elasticsearch
-5. Install graylog
-6. Install fluent-bit
-7. Install Issuer
-8. DNS Records ADD
-9. Create Ingress for graylog
-10. Access graylog web ui
-11. Configure Graylog input
-12. Deploy sample application (nginx web server)
-13. Validate graylog lmessages/metrics
-14. Install prometheus-operator (helm3)
+  0. Add Catalog
+  1. Install Nginx Ingress
+  2. Install Cert- Manager
+  3. Install  mongodb-replicaset
+  4. Install elasticsearch
+  5. Install graylog
+  6. Install fluent-bit
+  7. Install Issuer
+  8. DNS Records ADD
+  9. Create Ingress for graylog
+  10. Access graylog web ui
+  11. Configure Graylog input
+  12. Deploy sample application (nginx web server)
+  13. Validate graylog lmessages/metrics
+  14. Install prometheus-operator (helm3)
 
 
 ## 0. Add Catalog
 
-1. Go to Rancher Console > Cluster -> Default -> Apps -> Manage Catalogs > Add Catalog
+  1. Go to Rancher Console > Cluster -> Default -> Apps -> Manage Catalogs > Add Catalog
 Name: google-repo
 Catalog URL: https://kubernetes-charts.storage.googleapis.com/
 
-2. Go to Rancher Console > Cluster -> System -> Apps -> Manage Catalogs > Add Catalog
+  2. Go to Rancher Console > Cluster -> System -> Apps -> Manage Catalogs > Add Catalog
 Name: cert-manager
 Catalog URL: https://charts.jetstack.io
 
 ## 1. Install Nginx Ingress
 
-1. Go to Rancher Console > Cluster -> Default -> Apps -> Launch
-2. Search "Nginx ingress"
-3. Select "Nginx ingress" and Launch.
+  1. Go to Rancher Console > Cluster -> Default -> Apps -> Launch
+  2. Search "Nginx ingress"
+  3. Select "Nginx ingress" and Launch.
 
 ## 2. Install Cert- Manager
 
-1. Go to Rancher Console > Cluster -> System -> Apps -> Launch
-2. Search "cert manager"
-3. Select "cert manager"
-4. Select Namespace "kube-system"
-5. Add Variable
+  1. Go to Rancher Console > Cluster -> System -> Apps -> Launch
+  2. Search "cert manager"
+  3. Select "cert manager"
+  4. Select Namespace "kube-system"
+  5. Add Variable
 ```
 installCRDs=true
 ```
-6. Launch.
+  6. Launch.
 
 ## 3. Install  mongodb-replicaset
 
-1. Go to Rancher Console > Cluster -> Default -> Apps -> Launch
-2. Search "mongodb-replicaset"
-3. Select "mongodb-replicaset"
-4. Select Namespace "graylog" and Launch.
+  1. Go to Rancher Console > Cluster -> Default -> Apps -> Launch
+  2. Search "mongodb-replicaset"
+  3. Select "mongodb-replicaset"
+  4. Select Namespace "graylog" and Launch.
 
 ## 4. Install elasticsearch
 
-1. Go to Rancher Console > Cluster -> Default -> Apps -> Launch
-2. Search "elasticsearch"
-3. Select "elasticsearch"
-4. Select Namespace "graylog" and Launch.
+  1. Go to Rancher Console > Cluster -> Default -> Apps -> Launch
+  2. Search "elasticsearch"
+  3. Select "elasticsearch"
+  4. Select Namespace "graylog" and Launch.
 
 ## 5. Install graylog
 
-1. Go to Rancher Console > Cluster -> Default -> Apps -> Launch
-2. Search "graylog"
-3. Select "graylog"
-4. Select Namespace "graylog"
-5. Set Variables
+  1. Go to Rancher Console > Cluster -> Default -> Apps -> Launch
+  2. Search "graylog"
+  3. Select "graylog"
+  4. Select Namespace "graylog"
+  5. Set Variables
 
 ```bash
 graylog.elasticsearch.hosts=http://elasticsearch-client.graylog.svc.cluster.local:9200
@@ -75,33 +75,33 @@ graylog.mongodb.uri=mongodb://mongodb-replicaset.graylog.svc.cluster.local:27017
 tags.install-elasticsearch=false
 tags.install-mongodb=false
 ```
-6. Launch
-7. Go to Rancher Console > Cluster -> Default -> Resources -> Config
-Select graylog
-Click Edit
-Modify parameter http_external_uri as like
+  6. Launch
+  7. Go to Rancher Console > Cluster -> Default -> Resources -> Config
+    Select graylog
+    Click Edit
+    Modify parameter http_external_uri as like
 ```bash
 http_external_uri = https://graylog.kubelancer.net/
 ```
-8. To Re-deploy pod to take configmap, Go to Rancher Console > Cluster -> Default -> Resources -> Workloads
-Click graylog
-Select graylog-0
-Click Delete
+  8. To Re-deploy pod to take configmap, Go to Rancher Console > Cluster -> Default -> Resources -> Workloads
+  Click graylog
+  Select graylog-0
+  Click Delete
 
-Once POD up and running, then repeat same
+  Once POD up and running, then repeat same
 
-Click graylog
-Select graylog-1
-Click Delete
+  Click graylog
+  Select graylog-1
+  Click Delete
 
 ## 6. Install fluent-bit
 
-1. Go to Rancher Console > Cluster -> Default -> Apps -> Launch
-2. Search "fluent-bit"
-3. Select "fluent-bit"
-4. Select Namespace "graylog"
-5. Launch
-6. Go to Rancher Console > Cluster -> Default -> Resources -> Config
+  1. Go to Rancher Console > Cluster -> Default -> Apps -> Launch
+  2. Search "fluent-bit"
+  3. Select "fluent-bit"
+  4. Select Namespace "graylog"
+  5. Launch
+  6. Go to Rancher Console > Cluster -> Default -> Resources -> Config
 Select fluent-bit-config
 Click Edit
 Modify parameter fluent-bit-output.conf as like
@@ -129,13 +129,13 @@ tls off
 tls.verify on
 tls.debug 1
 ```
-7. To Re-deploy pod to take configmap, Go to Rancher Console > Cluster -> Default -> Resources -> Workloads
+  7. To Re-deploy pod to take configmap, Go to Rancher Console > Cluster -> Default -> Resources -> Workloads
 Click fluent-bit
 Click Redeploy
 
 ## 7. Install Issuer
 
-1. create letsencrypt-prod-graylog.yaml
+  1. create letsencrypt-prod-graylog.yaml
 ```bash
 vi letsencrypt-prod-graylog.yaml
 ```
@@ -163,25 +163,25 @@ spec:
 ```bash
 kubectl apply -f letsencrypt-prod-graylog.yaml
 ```
-2. To check Issuer status
+  2. To check Issuer status
 ```bash
 kubectl get issuer -n graylog
 ```
 
-8. DNS Records ADD
-1. To get ingress External IP
+## 8. DNS Records ADD
+  1. To get ingress External IP
 ```bash
 kubectl get svc -n nginx-ingress
 ```
-2. Add A record on DNS controller
+  2. Add A record on DNS controller
 ```
 Ex:
 graylog.kubelancer.net A 35.184.146.232
 ```
 
-9. Create Ingress for graylog
+## 9. Create Ingress for graylog
 
-1. create graylog-ingress.yaml
+  1. create graylog-ingress.yaml
 ```bash
 vi graylog-ingress.yaml
 ```
@@ -209,11 +209,11 @@ spec:
           serviceName: graylog-web
           servicePort: 9000
 ```
-2. Create ingress for Graylog
+  2. Create ingress for Graylog
 ```bash
 kubectl apply -f graylog-ingress.yaml
 ```
-3. To check certs status
+  3. To check certs status
 ```bash
 kubectl get certs -n graylog
 ```
@@ -232,15 +232,15 @@ kubectl get secret/graylog -n graylog -o yaml | grep graylog-password-secret: | 
 
 ## 11. Configure Graylog input
 
-1. Goto graylog Console -> system/inputs -> inputs
-2. Select `GELF TCP` -> Launch new input
-3. Select Global
-4. Title GELF TCP
-5. Click Save
+  1. Goto graylog Console -> system/inputs -> inputs
+  2. Select `GELF TCP` -> Launch new input
+  3. Select Global
+  4. Title GELF TCP
+  5. Click Save
 
 ## 12. Deploy sample application (nginx web server)
 
-1. create deployment file nginx.yaml
+  1. create deployment file nginx.yaml
 ```bash
 vi nginx.yaml
 ```
@@ -285,15 +285,15 @@ spec:
   restartPolicy: Never
 status: {}
 ```
-2. Apply the deployment
+  2. Apply the deployment
 ```bash
 kubectl apply -f nginx.yaml
 ```
 
-3. Create DNS record.
+  3. Create DNS record.
 web1.kubelancer.net A 35.225.208.53
 
-4.  create ingress for web application
+  4.  create ingress for web application
 
 ```bash
 vi  web1-ingress.yaml
@@ -322,14 +322,14 @@ spec:
           serviceName: nginx
           servicePort: 80
 ```
-5. Apply the web Ingress
+  5. Apply the web Ingress
 ```bash
 kubectl apply -f web1-ingress.yaml
 ```
 
 ## 13. Validate graylog messages/metrics
 
-1. Goto graylog Console -> Search
+  1. Goto graylog Console -> Search
 
 ```
 ```
@@ -337,4 +337,3 @@ kubectl apply -f web1-ingress.yaml
 #       *  *  *  *  *  
 
 # * * * * Thank You * * * * *
-
