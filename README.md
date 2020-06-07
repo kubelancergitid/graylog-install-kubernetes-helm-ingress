@@ -15,7 +15,7 @@
   11. Configure Graylog input
   12. Deploy sample application (nginx web server)
   13. Validate graylog lmessages/metrics
-  14. Install prometheus-operator (helm3)
+ 
 
 
 ## 0. Add Catalog
